@@ -58,7 +58,7 @@ export type Tab = "settings" | "products" | "warehouse" | "orders";
   export default function BottomNav({ active, onChange }: Props) {
     return (
       <nav className="fixed bottom-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md border-t border-slate-800">
-        <div className="max-w-2xl mx-auto flex items-stretch h-16">
+        <div className="pb-safe max-w-2xl mx-auto flex items-stretch h-16">
           {items.map((item) => {
             const isActive = item.id === active;
             return (

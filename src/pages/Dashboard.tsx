@@ -63,7 +63,7 @@ import { useState, useEffect, useCallback } from "react";
 
     return (
       <div className="bg-slate-950">
-        <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur-sm sticky top-0 z-10">
+        <header className="pt-safe border-b border-slate-800 bg-slate-900/80 backdrop-blur-sm sticky top-0 z-10">
           <div className="max-w-2xl mx-auto px-4 h-14 flex items-center gap-3">
             <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
               <span className="text-emerald-400 text-xs font-bold">S</span>
