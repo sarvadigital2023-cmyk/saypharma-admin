@@ -122,3 +122,22 @@ export async function deleteStockMovement(id: string): Promise<void> {
   const resp = await fetch(`${API_BASE}/supabase/stock-movements/${id}`, { method: "DELETE" });
   if (!resp.ok) { const err = await resp.json().catch(() => ({})); throw new Error(err.error || `HTTP ${resp.status}`); }
 }
+
+// ── Stock Balance ─────────────────────────────────────────────────────────
+
+export interface StockBalance {
+  product_id: string;
+  name: string;
+  form: string | null;
+  active_substance: string | null;
+  applicability: string | null;
+  current_quantity: number;
+  expiry_date: string | null;
+}
+
+export async function getStockBalance(): Promise<StockBalance[]> {
+  const resp = await fetch(`${API_BASE}/supabase/stock-balance`);
+  if (!resp.ok) { const err = await resp.json().catch(() => ({})); throw new Error(err.error || `HTTP ${resp.status}`); }
+  const { data } = await resp.json();
+  return data ?? [];
+}
