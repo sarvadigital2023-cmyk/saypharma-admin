@@ -183,3 +183,26 @@ export async function updateOrderStatus(id: string, status: OrderStatus): Promis
   });
   if (!resp.ok) { const err = await resp.json().catch(() => ({})); throw new Error(err.error || `HTTP ${resp.status}`); }
 }
+
+// ── Stock Report ──────────────────────────────────────────────────────────
+
+export interface StockReportRow {
+  product_id: string;
+  name: string;
+  form: string | null;
+  active_substance: string | null;
+  prescription_required: boolean;
+  applicability: string | null;
+  current_quantity: number;
+  price_without_vat: number | null;
+  price_with_vat: number | null;
+  expiry_date: string | null;
+  last_received_date: string | null;
+}
+
+export async function getStockReport(): Promise<StockReportRow[]> {
+  const resp = await fetch(`${API_BASE}/supabase/stock-report`);
+  if (!resp.ok) { const err = await resp.json().catch(() => ({})); throw new Error(err.error || `HTTP ${resp.status}`); }
+  const { data } = await resp.json();
+  return data ?? [];
+}
