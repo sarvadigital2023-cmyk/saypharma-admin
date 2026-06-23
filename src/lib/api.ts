@@ -141,3 +141,45 @@ export async function getStockBalance(): Promise<StockBalance[]> {
   const { data } = await resp.json();
   return data ?? [];
 }
+
+// ── Orders ────────────────────────────────────────────────────────────────
+
+export type OrderStatus = "new" | "accepted" | "prepared" | "in_delivery" | "delivered" | "cancelled";
+
+export interface OrderItem {
+  name?: string;
+  quantity?: number;
+  price?: number;
+}
+
+export interface Order {
+  id: string;
+  phone: string;
+  first_name: string | null;
+  last_name: string | null;
+  full_name: string | null;
+  items: OrderItem[];
+  total_amount: number | null;
+  status: OrderStatus;
+  address: string | null;
+  comment: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export async function getOrders(status?: OrderStatus): Promise<Order[]> {
+  const qs = status ? `?status=${status}` : "";
+  const resp = await fetch(`${API_BASE}/supabase/orders${qs}`);
+  if (!resp.ok) { const err = await resp.json().catch(() => ({})); throw new Error(err.error || `HTTP ${resp.status}`); }
+  const { data } = await resp.json();
+  return data ?? [];
+}
+
+export async function updateOrderStatus(id: string, status: OrderStatus): Promise<void> {
+  const resp = await fetch(`${API_BASE}/supabase/orders/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status }),
+  });
+  if (!resp.ok) { const err = await resp.json().catch(() => ({})); throw new Error(err.error || `HTTP ${resp.status}`); }
+}
