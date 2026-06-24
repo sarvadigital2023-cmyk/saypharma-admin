@@ -70,6 +70,15 @@ export async function createProduct(product: NewProduct): Promise<Product> {
   return Array.isArray(data) ? data[0] : data;
 }
 
+export async function updateProduct(id: string, patch: Partial<NewProduct>): Promise<Product> {
+  const resp = await fetch(`${API_BASE}/supabase/products/${id}`, {
+    method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(patch),
+  });
+  if (!resp.ok) { const err = await resp.json().catch(() => ({})); throw new Error(err.error || `HTTP ${resp.status}`); }
+  const { data } = await resp.json();
+  return Array.isArray(data) ? data[0] : data;
+}
+
 export async function deleteProduct(id: string): Promise<void> {
   const resp = await fetch(`${API_BASE}/supabase/products/${id}`, { method: "DELETE" });
   if (!resp.ok) { const err = await resp.json().catch(() => ({})); throw new Error(err.error || `HTTP ${resp.status}`); }
