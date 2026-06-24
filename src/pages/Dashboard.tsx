@@ -1,13 +1,22 @@
 import { useState, useEffect, useCallback } from "react";
-import { getSettings, updateSettings, type PharmacySettings } from "@/lib/api";
+import {
+  getSettings, updateSettings,
+  type PharmacySettings, type Currency, CURRENCY_SYMBOL,
+} from "@/lib/api";
 
 type Status = "loading" | "idle" | "saving" | "success" | "error";
+
+const CURRENCIES: { value: Currency; label: string; symbol: string }[] = [
+  { value: "EUR", label: "Евро",    symbol: "€" },
+  { value: "USD", label: "Доллар",  symbol: "$" },
+  { value: "UAH", label: "Гривна",  symbol: "₴" },
+];
 
 export default function Dashboard() {
   const [settings, setSettings] = useState<PharmacySettings | null>(null);
   const [form, setForm] = useState({
     latitude: "", longitude: "", delivery_radius_km: "", max_requests_per_ip_per_day: "",
-    delivery_fee: "", min_order_amount: "", working_hours: "",
+    delivery_fee: "", min_order_amount: "", working_hours: "", currency: "EUR" as Currency,
   });
   const [status, setStatus] = useState<Status>("loading");
   const [error, setError] = useState<string | null>(null);
@@ -20,13 +29,14 @@ export default function Dashboard() {
       const s = await getSettings();
       setSettings(s);
       setForm({
-        latitude: String(s.latitude),
-        longitude: String(s.longitude),
-        delivery_radius_km: String(s.delivery_radius_km),
+        latitude:                   String(s.latitude),
+        longitude:                  String(s.longitude),
+        delivery_radius_km:         String(s.delivery_radius_km),
         max_requests_per_ip_per_day: String(s.max_requests_per_ip_per_day),
-        delivery_fee: String(s.delivery_fee ?? 0),
-        min_order_amount: String(s.min_order_amount ?? 0),
-        working_hours: s.working_hours ?? "09:00-21:00",
+        delivery_fee:               String(s.delivery_fee ?? 0),
+        min_order_amount:           String(s.min_order_amount ?? 0),
+        working_hours:              s.working_hours ?? "09:00-21:00",
+        currency:                   s.currency ?? "EUR",
       });
       setStatus("idle");
     } catch (e) {
@@ -63,6 +73,7 @@ export default function Dashboard() {
         delivery_fee: fee,
         min_order_amount: minAmt,
         working_hours: form.working_hours.trim() || "09:00-21:00",
+        currency: form.currency,
       });
       setLastSaved(new Date().toLocaleTimeString("ru-RU"));
       await load();
@@ -74,6 +85,7 @@ export default function Dashboard() {
     }
   };
 
+  const sym = CURRENCY_SYMBOL[form.currency] ?? "€";
   const inputCls = "w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500/40 text-sm";
 
   return (
@@ -107,7 +119,48 @@ export default function Dashboard() {
 
         {(status !== "loading" && settings) && (
           <>
-            {/* Координаты */}
+            {/* ── Валюта ── */}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 className="text-white font-semibold text-sm">Валюта</h2>
+                  <p className="text-slate-500 text-xs">Используется для цен и расчётов</p>
+                </div>
+                {/* текущий символ */}
+                <span className="ml-auto text-2xl font-bold text-emerald-400 leading-none">
+                  {sym}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2">
+                {CURRENCIES.map(c => {
+                  const active = form.currency === c.value;
+                  return (
+                    <button
+                      key={c.value}
+                      type="button"
+                      onClick={() => setForm(f => ({ ...f, currency: c.value }))}
+                      className={`flex flex-col items-center gap-1 py-3 rounded-xl border text-sm font-semibold transition-all ${
+                        active
+                          ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300"
+                          : "bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600 hover:text-slate-300"
+                      }`}
+                    >
+                      <span className="text-xl leading-none">{c.symbol}</span>
+                      <span className="text-xs font-medium">{c.value}</span>
+                      <span className="text-[10px] font-normal opacity-70">{c.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ── Координаты ── */}
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center flex-shrink-0">
@@ -151,7 +204,7 @@ export default function Dashboard() {
               )}
             </div>
 
-            {/* Радиус */}
+            {/* ── Радиус ── */}
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center flex-shrink-0">
@@ -181,7 +234,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Доставка и минимальный заказ */}
+            {/* ── Условия доставки ── */}
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
@@ -202,7 +255,7 @@ export default function Dashboard() {
                       value={form.delivery_fee}
                       onChange={e => setForm({ ...form, delivery_fee: e.target.value })}
                       className={`${inputCls} pr-8`} />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500">₸</span>
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500">{sym}</span>
                   </div>
                 </div>
                 <div>
@@ -212,13 +265,13 @@ export default function Dashboard() {
                       value={form.min_order_amount}
                       onChange={e => setForm({ ...form, min_order_amount: e.target.value })}
                       className={`${inputCls} pr-8`} />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500">₸</span>
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500">{sym}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Часы работы */}
+            {/* ── Часы работы ── */}
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center flex-shrink-0">
@@ -233,17 +286,15 @@ export default function Dashboard() {
               </div>
               <div>
                 <label className="block text-xs font-medium text-slate-400 mb-1">График работы</label>
-                <input
-                  type="text" placeholder="09:00-21:00"
+                <input type="text" placeholder="09:00-21:00"
                   value={form.working_hours}
                   onChange={e => setForm({ ...form, working_hours: e.target.value })}
-                  className={inputCls}
-                />
+                  className={inputCls} />
                 <p className="text-xs text-slate-600 mt-1">Пример: 09:00-21:00 или Пн-Пт 09:00-20:00</p>
               </div>
             </div>
 
-            {/* IP-лимит */}
+            {/* ── IP-лимит ── */}
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center flex-shrink-0">

@@ -2,6 +2,14 @@ export const API_BASE = "/api";
 
 // ── Settings ──────────────────────────────────────────────────────────────
 
+export type Currency = "EUR" | "USD" | "UAH";
+
+export const CURRENCY_SYMBOL: Record<Currency, string> = {
+  EUR: "€",
+  USD: "$",
+  UAH: "₴",
+};
+
 export interface PharmacySettings {
   id: string;
   latitude: number;
@@ -11,6 +19,7 @@ export interface PharmacySettings {
   delivery_fee: number;
   min_order_amount: number;
   working_hours: string;
+  currency: Currency;
   created_at: string;
   updated_at: string;
 }
