@@ -1,8 +1,0 @@
-{
-  "installCommand": "cd ../../ && pnpm install --frozen-lockfile",
-  "buildCommand": "cd ../../ && pnpm --filter @workspace/saypharma-admin run build",
-  "outputDirectory": "dist/public",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
-}
