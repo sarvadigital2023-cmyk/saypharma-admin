@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { getOrders, updateOrderStatus, updateOrderPayment, type Order, type OrderStatus } from "@/lib/api";
+import { useCurrency } from "@/lib/CurrencyContext";
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
   new:         "Новый",
@@ -58,8 +59,9 @@ function paymentLabel(v: string | null) {
   return PAYMENT_METHODS.find(m => m.value === v)?.label ?? v;
 }
 
-function OrderCard({ order, onStatusChange, onPaymentChange }: {
+function OrderCard({ order, sym, onStatusChange, onPaymentChange }: {
   order: Order;
+  sym: string;
   onStatusChange: (id: string, s: OrderStatus) => Promise<void>;
   onPaymentChange: (id: string, p: string) => Promise<void>;
 }) {
@@ -111,7 +113,7 @@ function OrderCard({ order, onStatusChange, onPaymentChange }: {
         <div className="text-right shrink-0">
           {order.total_amount != null && (
             <p className="text-emerald-400 font-semibold text-sm">
-              {Number(order.total_amount).toLocaleString("ru-RU")} ₸
+              {Number(order.total_amount).toLocaleString("ru-RU")} {sym}
             </p>
           )}
           <svg className={`w-4 h-4 text-slate-600 mt-1 ml-auto transition-transform ${open ? "rotate-180" : ""}`}
@@ -134,7 +136,7 @@ function OrderCard({ order, onStatusChange, onPaymentChange }: {
                     <span className="text-slate-300 text-sm">{it.name || "Товар"}</span>
                     <span className="text-slate-500 text-xs shrink-0">
                       {it.quantity != null ? `× ${it.quantity}` : ""}
-                      {it.price != null ? `  ${Number(it.price).toLocaleString("ru-RU")} ₸` : ""}
+                      {it.price != null ? `  ${Number(it.price).toLocaleString("ru-RU")} ${sym}` : ""}
                     </span>
                   </div>
                 ))}
@@ -200,6 +202,7 @@ function OrderCard({ order, onStatusChange, onPaymentChange }: {
 }
 
 export default function Orders() {
+  const { sym } = useCurrency();
   const [tab, setTab]       = useState<FilterTab>("all");
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -305,7 +308,7 @@ export default function Orders() {
         )}
 
         {!loading && !error && orders.map(o => (
-          <OrderCard key={o.id} order={o} onStatusChange={handleStatusChange} onPaymentChange={handlePaymentChange} />
+          <OrderCard key={o.id} order={o} sym={sym} onStatusChange={handleStatusChange} onPaymentChange={handlePaymentChange} />
         ))}
       </main>
     </div>

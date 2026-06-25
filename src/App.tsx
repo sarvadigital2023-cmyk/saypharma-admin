@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createRoot } from "react-dom/client";
+import { CurrencyProvider } from "@/lib/CurrencyContext";
 import Dashboard from "@/pages/Dashboard";
 import Products from "@/pages/Products";
 import Warehouse from "@/pages/Warehouse";
@@ -18,15 +18,17 @@ export default function App() {
   const [tab, setTab] = useState<Tab>("settings");
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col">
-      <div className="flex-1 overflow-y-auto pb-20">
-        {tab === "settings"  && <Dashboard />}
-        {tab === "products"  && <Products />}
-        {tab === "warehouse" && <Warehouse />}
-        {tab === "orders"    && <Orders />}
-        {tab === "reports"   && <Reports />}
+    <CurrencyProvider>
+      <div className="min-h-screen bg-slate-950 flex flex-col">
+        <div className="flex-1 overflow-y-auto pb-20">
+          {tab === "settings"  && <Dashboard />}
+          {tab === "products"  && <Products />}
+          {tab === "warehouse" && <Warehouse />}
+          {tab === "orders"    && <Orders />}
+          {tab === "reports"   && <Reports />}
+        </div>
+        <BottomNav active={tab} onChange={setTab} />
       </div>
-      <BottomNav active={tab} onChange={setTab} />
-    </div>
+    </CurrencyProvider>
   );
 }

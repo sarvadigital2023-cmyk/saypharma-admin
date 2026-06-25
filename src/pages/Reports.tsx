@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { getStockReport, type StockReportRow } from "@/lib/api";
+import { useCurrency } from "@/lib/CurrencyContext";
 
 type Tab = "balance" | "expiry";
 
@@ -83,6 +84,7 @@ function exportBalance(rows: StockReportRow[]) {
 }
 
 function BalanceTab({ rows }: { rows: StockReportRow[] }) {
+  const { sym } = useCurrency();
   return (
     <div>
       <div className="flex items-center justify-between px-4 py-3">
@@ -170,11 +172,11 @@ function BalanceTab({ rows }: { rows: StockReportRow[] }) {
             </div>
             <div className="text-xs">
               <span className="text-slate-500">Итого без НДС: </span>
-              <span className="text-emerald-400 font-semibold">{totalNoVat.toLocaleString("ru-RU", { minimumFractionDigits: 2 })} ₸</span>
+              <span className="text-emerald-400 font-semibold">{totalNoVat.toLocaleString("ru-RU", { minimumFractionDigits: 2 })} {sym}</span>
             </div>
             <div className="text-xs">
               <span className="text-slate-500">Итого с НДС: </span>
-              <span className="text-emerald-400 font-semibold">{totalVat.toLocaleString("ru-RU", { minimumFractionDigits: 2 })} ₸</span>
+              <span className="text-emerald-400 font-semibold">{totalVat.toLocaleString("ru-RU", { minimumFractionDigits: 2 })} {sym}</span>
             </div>
           </div>
         );

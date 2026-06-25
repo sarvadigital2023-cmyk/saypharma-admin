@@ -5,6 +5,7 @@ import {
   type Product, type StockMovement, type MovementType, type NewStockMovement,
   type StockBalance,
 } from "@/lib/api";
+import { useCurrency } from "@/lib/CurrencyContext";
 
 type ViewTab = "all" | MovementType | "balance";
 
@@ -40,9 +41,9 @@ function fmtDate(d: string | null) {
   return new Date(d).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" });
 }
 
-function fmtPrice(v: number | null) {
+function fmtPrice(v: number | null, sym: string) {
   if (v == null) return "—";
-  return v.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ₸";
+  return v.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " " + sym;
 }
 
 export default function Warehouse() {
@@ -60,6 +61,7 @@ export default function Warehouse() {
   const [productPickerOpen, setProductPickerOpen] = useState(false);
   const [productSearch, setProductSearch]         = useState("");
   const searchRef = useRef<HTMLInputElement>(null);
+  const { sym } = useCurrency();
 
   const loadMovements = useCallback(async (t: ViewTab) => {
     setLoading(true); setLoadError(null);
@@ -303,12 +305,12 @@ export default function Warehouse() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className={lbl}>Цена без НДС (₸)</label>
+                <label className={lbl}>Цена без НДС ({sym})</label>
                 <input type="number" min={0} step="0.01" placeholder="0.00" className={inp}
                   value={form.purchase_price} onChange={e => set("purchase_price", e.target.value)} />
               </div>
               <div>
-                <label className={lbl}>Цена с НДС (₸)</label>
+                <label className={lbl}>Цена с НДС ({sym})</label>
                 <input type="number" min={0} step="0.01" placeholder="0.00" className={inp}
                   value={form.purchase_price_vat} onChange={e => set("purchase_price_vat", e.target.value)} />
               </div>
@@ -413,8 +415,8 @@ export default function Warehouse() {
                         <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1">
                           <Row label="Кол-во" value={`${m.quantity} шт.`} />
                           {m.expiry_date && <Row label="Годен до" value={fmtDate(m.expiry_date)} />}
-                          {m.purchase_price     != null && <Row label="Без НДС" value={fmtPrice(m.purchase_price)} />}
-                          {m.purchase_price_vat != null && <Row label="С НДС"   value={fmtPrice(m.purchase_price_vat)} />}
+                          {m.purchase_price     != null && <Row label="Без НДС" value={fmtPrice(m.purchase_price, sym)} />}
+                          {m.purchase_price_vat != null && <Row label="С НДС"   value={fmtPrice(m.purchase_price_vat, sym)} />}
                         </div>
                         {m.notes && <p className="mt-1.5 text-slate-500 text-xs">{m.notes}</p>}
                         <p className="mt-1.5 text-slate-700 text-[10px]">{fmt(m.operation_date)}</p>
