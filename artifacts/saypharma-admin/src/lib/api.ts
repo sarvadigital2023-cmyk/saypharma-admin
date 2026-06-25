@@ -192,6 +192,7 @@ export interface Order {
   address: string | null;
   comment: string | null;
   payment_method: string | null;
+  call_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -266,6 +267,7 @@ export async function resetAllData(): Promise<void> {
     transcript: string | null;
     summary: string | null;
     order_id: string | null;
+  call_id: string | null;
     created_at: string;
   }
 
