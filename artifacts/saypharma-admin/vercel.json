@@ -1,8 +1,7 @@
 {
-  "framework": null,
-  "buildCommand": "npm run build",
+  "installCommand": "cd ../../ && pnpm install --frozen-lockfile",
+  "buildCommand": "cd ../../ && pnpm --filter @workspace/saypharma-admin run build",
   "outputDirectory": "dist/public",
-  "installCommand": "npm install --legacy-peer-deps",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
